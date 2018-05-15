@@ -2406,6 +2406,7 @@ void database::init_genesis( uint64_t init_supply )
          create< witness_object >( [&]( witness_object& w )
          {
             w.owner        = STEEMIT_INIT_MINER_NAME + ( i ? fc::to_string(i) : std::string() );
+            wlog( "signing key set to init public key ${key}", ("key", init_public_key));
             w.signing_key  = init_public_key;
             w.schedule = witness_object::miner;
          } );
@@ -2958,6 +2959,11 @@ void database::update_global_dynamic_data( const signed_block& b )
                {
                   if( head_block_num() - w.last_confirmed_block_num  > STEEMIT_BLOCKS_PER_DAY )
                   {
+                     wlog( "signing key set to public key type ${key} total missed ${missed} head ${head} last ${last}", 
+                        ("key", public_key_type())
+                        ("missed", w.total_missed) 
+                        ("head", head_block_num())
+                        ("last", w.last_confirmed_block_num) );
                      w.signing_key = public_key_type();
                      push_virtual_operation( shutdown_witness_operation( w.owner ) );
                   }
